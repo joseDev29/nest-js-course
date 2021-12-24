@@ -1,26 +1,12 @@
-import { Injectable } from '@nestjs/common'
-import { CreateProductDTO, UpdateProductDTO } from 'src/dtos/products.dto'
-import { Product, ProductPayload } from 'src/interfaces/products.interfaces'
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { CreateProductDTO, UpdateProductDTO } from '../dtos/products.dto'
+
+import { generateID } from '../../../common/generateID'
+import { Product } from '../entities/product.entity'
 
 @Injectable()
 export class ProductsService {
-  private products: Product[] = [
-    {
-      id: '1',
-      name: 'Macbook',
-      price: 1200,
-    },
-    {
-      id: '2',
-      name: 'Iphone',
-      price: 600,
-    },
-    {
-      id: '3',
-      name: 'Apple watch',
-      price: 400,
-    },
-  ]
+  private products: Product[] = []
 
   findAll(): Product[] {
     return this.products
@@ -31,7 +17,7 @@ export class ProductsService {
   }
 
   create(payload: CreateProductDTO): Product {
-    const product = { id: `${this.products.length + 1}`, ...payload }
+    const product: Product = { id: generateID(), ...payload }
 
     this.products.push(product)
 
@@ -42,7 +28,8 @@ export class ProductsService {
     const index = this.products.findIndex((item) => item.id === id)
     let product = this.products[index]
 
-    if (!product) return null
+    if (!product)
+      throw new NotFoundException(`Product with id '${id}' not found`)
 
     product = {
       ...product,
@@ -58,7 +45,8 @@ export class ProductsService {
     const index = this.products.findIndex((item) => item.id === id)
     let product = this.products[index]
 
-    if (!product) return null
+    if (!product)
+      throw new NotFoundException(`Product with id '${id}' not found`)
 
     this.products.splice(index, 1)
 
