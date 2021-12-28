@@ -1,22 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
+import { ConfigType } from '@nestjs/config'
+import config from './config/config'
 
 @Injectable()
 export class AppService {
-  //Se injecta el valor definido como provider en AppModule
-  constructor(
-    @Inject('API_KEY') private apiKey: string,
-    @Inject('TASKS') private tasks: any[],
-  ) {}
+  constructor() {}
 
   getHello(): string {
     return 'Hello World!'
   }
 
-  getApiKey(): string {
-    return this.apiKey
-  }
-
-  getTasks(): any[] {
-    return this.tasks
-  }
+  // getConfig(): ConfigType<typeof config> {
+  //   return this.configService
+  // }
 }

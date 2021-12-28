@@ -1,55 +1,78 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { CreateProductDTO, UpdateProductDTO } from '../dtos/products.dto'
+import { Injectable } from '@nestjs/common'
+import { ObjectId } from 'mongodb'
+import { FilterQuery, Model } from 'mongoose'
+import { InjectModel } from '@nestjs/mongoose'
 
-import { generateID } from '../../../common/generateID'
+import {
+  CreateProductDTO,
+  FilterProductsDTO,
+  UpdateProductDTO,
+} from '../dtos/products.dto'
 import { Product } from '../entities/product.entity'
 
 @Injectable()
 export class ProductsService {
-  private products: Product[] = []
+  constructor(
+    @InjectModel(Product.name) private readonly productModel: Model<Product>,
+  ) {}
 
-  findAll(): Product[] {
-    return this.products
-  }
+  findAll(params?: FilterProductsDTO): Promise<Product[]> {
+    if (params) {
+      const filters: FilterQuery<Product> = {}
+      //Offset hace referencia al numero de productos a omitir
+      const { limit, offset, minPrice, maxPrice } = params
 
-  findOne(id: string): Product {
-    return this.products.find((item) => item.id === id)
-  }
+      //$gte hace referencia a mayor o igual
+      if (minPrice)
+        filters.price = {
+          ...filters.price,
+          $gte: minPrice,
+        }
 
-  create(payload: CreateProductDTO): Product {
-    const product: Product = { id: generateID(), ...payload }
+      //$lte hace referencia a menor o igual
+      if (maxPrice)
+        filters.price = {
+          ...filters.price,
+          $lte: maxPrice,
+        }
 
-    this.products.push(product)
-
-    return product
-  }
-
-  update(id: string, payload: UpdateProductDTO): Product | null {
-    const index = this.products.findIndex((item) => item.id === id)
-    let product = this.products[index]
-
-    if (!product)
-      throw new NotFoundException(`Product with id '${id}' not found`)
-
-    product = {
-      ...product,
-      ...payload,
+      return this.productModel
+        .find(filters)
+        .skip(offset)
+        .limit(limit)
+        .populate('brand')
+        .exec()
     }
 
-    this.products[index] = product
-
-    return product
+    //Con populate podemos pedir tambien el valor referenciado en el obejectId
+    //de la propiedad brand
+    return this.productModel.find().populate('brand').exec()
   }
 
-  delete(id: string): Product | null {
-    const index = this.products.findIndex((item) => item.id === id)
-    let product = this.products[index]
+  findOne(id: ObjectId): Promise<Product> {
+    return this.productModel.findById(id).populate('brand').exec()
+  }
 
-    if (!product)
-      throw new NotFoundException(`Product with id '${id}' not found`)
+  create(payload: CreateProductDTO): Promise<Product> {
+    const product = new this.productModel(payload)
+    return product.save()
+  }
 
-    this.products.splice(index, 1)
+  update(id: ObjectId, payload: UpdateProductDTO): Promise<Product> {
+    return this.productModel
+      .findByIdAndUpdate(
+        id,
+        //Con $set solo se mofican los objetos que vayan en el payload
+        { $set: payload },
+        {
+          //Return document after update
+          new: true,
+        },
+      )
+      .exec()
+  }
 
-    return product
+  delete(id: ObjectId): Promise<Product> {
+    return this.productModel.findByIdAndDelete(id).exec()
   }
 }

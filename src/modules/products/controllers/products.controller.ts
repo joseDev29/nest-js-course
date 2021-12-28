@@ -9,94 +9,82 @@ import {
   Put,
   HttpStatus,
   NotFoundException,
+  Query,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { ObjectId } from 'mongodb'
+import { MongoIdPipe } from 'src/pipes/mongo-id.pipe'
 
-import { CreateProductDTO, UpdateProductDTO } from '../dtos/products.dto'
+import {
+  CreateProductDTO,
+  FilterProductsDTO,
+  UpdateProductDTO,
+} from '../dtos/products.dto'
 import { ProductsService } from '../services/products.service'
 
-@ApiTags('products')
+@ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  getAll() {
+  async getAll(@Query() params: FilterProductsDTO) {
     return {
       ok: true,
-      data: this.productsService.findAll(),
+      data: await this.productsService.findAll(params),
     }
   }
 
   @Get(':id')
-  getByID(@Param('id') id: string) {
-    try {
-      const product = this.productsService.findOne(id)
+  async getByID(@Param('id', MongoIdPipe) id: ObjectId) {
+    const product = await this.productsService.findOne(id)
 
-      if (!product)
-        throw new NotFoundException(`Product with id '${id}' not found`)
+    if (!product)
+      throw new NotFoundException(`Product with id '${id}' not found`)
 
-      return {
-        ok: true,
-        data: product,
-      }
-    } catch (error) {
-      return {
-        ok: false,
-        msg: error.message,
-      }
+    return {
+      ok: true,
+      data: product,
     }
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() payload: CreateProductDTO) {
-    try {
-      const product = this.productsService.create(payload)
+  async create(@Body() payload: CreateProductDTO) {
+    const product = await this.productsService.create(payload)
 
-      return {
-        ok: true,
-        data: product,
-      }
-    } catch (error) {
-      return {
-        ok: false,
-        msg: error.message,
-      }
+    return {
+      ok: true,
+      data: product,
     }
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() payload: UpdateProductDTO) {
-    try {
-      const product = this.productsService.update(id, payload)
+  async update(
+    @Param('id', MongoIdPipe) id: ObjectId,
+    @Body() payload: UpdateProductDTO,
+  ) {
+    const product = await this.productsService.update(id, payload)
 
-      return {
-        ok: true,
-        data: product,
-      }
-    } catch (error) {
-      return {
-        ok: false,
-        msg: error.message,
-      }
+    if (!product)
+      throw new NotFoundException(`Product with id '${id}' not found`)
+
+    return {
+      ok: true,
+      data: product,
     }
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    try {
-      const product = this.productsService.delete(id)
+  async delete(@Param('id', MongoIdPipe) id: ObjectId) {
+    const product = await this.productsService.delete(id)
 
-      return {
-        ok: true,
-        data: product,
-      }
-    } catch (error) {
-      return {
-        ok: false,
-        msg: error.message,
-      }
+    if (!product)
+      throw new NotFoundException(`Product with id '${id}' not found`)
+
+    return {
+      ok: true,
+      data: product,
     }
   }
 }

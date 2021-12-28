@@ -4,7 +4,7 @@ import { Document } from 'mongoose'
 @Schema({
   timestamps: true,
 })
-export class User extends Document {
+export class Brand extends Document {
   @Prop({
     required: true,
     unique: true,
@@ -12,11 +12,8 @@ export class User extends Document {
   name: string
 
   @Prop({ required: true })
-  password: string
-
-  @Prop({ required: true })
-  role: string
+  image: string
 }
 
 //El Schema debe ser importado en el modulo en el cual va a ser utilizado mediante MoongoseModule.forFeature
-export const UserSchema = SchemaFactory.createForClass(User)
+export const BrandSchema = SchemaFactory.createForClass(Brand)

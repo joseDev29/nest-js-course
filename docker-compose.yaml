@@ -1,0 +1,28 @@
+version: '3.3'
+
+services:
+  mongo:
+    #Configuramos la imagen que se va a usar y la version
+    image: mongo:4.4
+    
+    #Declarar .env file
+    env_file:
+       - ./docker.env
+    
+    #Declarar para pasar por consola
+    #environment:
+    #  - MONGO_INITDB_ROOT_USERNAME
+    #  - MONGO_INITDB_ROOT_PASSWORD
+    
+    #Declararlas directamente
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: value
+    #   MONGO_INITDB_ROOT_PASSWORD: value
+    
+    #Configuramos el puerto en el que corre la imagen y lo enlazamos con el de nuestra maquina
+    ports:
+      - 27017:27017
+    #Configuramos que la data sea persistente y se guarde en la carpeta mongo_data 
+    #y la configure como lo requiere mongo, en las carpetas data/db
+    volumes:
+      - ./mongo_data:/data/db

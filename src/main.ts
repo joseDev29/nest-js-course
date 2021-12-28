@@ -11,6 +11,10 @@ async function bootstrap() {
       whitelist: true,
       //Retorna un error si se envian atributos no definidos en el DTO
       forbidNonWhitelisted: true,
+      transformOptions: {
+        //Transforma automaticamente los parametros del request
+        enableImplicitConversion: true,
+      },
     }),
   )
 
