@@ -14,7 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: environments[process.env.NODE_ENV] || '.dev.env',
+      envFilePath: environments[process.env.NODE_ENV] || '.development.env',
       isGlobal: true,
       load: [config],
       validationSchema: Joi.object({
