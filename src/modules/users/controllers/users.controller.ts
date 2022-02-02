@@ -38,4 +38,15 @@ export class UsersController {
       data: users,
     }
   }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() payload: CreateUserDTO) {
+    const user = await this.usersService.create(payload)
+
+    return {
+      ok: true,
+      data: user,
+    }
+  }
 }
