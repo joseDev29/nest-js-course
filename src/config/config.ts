@@ -10,6 +10,10 @@ export default registerAs('config', () => ({
     dbName: process.env.MONGO_DB_NAME,
   },
   auth: {
-    apiKey: process.env.API_KEY
-  }
+    apiKey: process.env.API_KEY,
+    jwt: {
+      secret: process.env.JWT_SECRET,
+      expirationTime: process.env.JWT_EXPIRATION_TIME,
+    },
+  },
 }))

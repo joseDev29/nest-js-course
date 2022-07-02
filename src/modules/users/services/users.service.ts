@@ -15,6 +15,10 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
+  async findByEmail(email: string) {
+    return await this.userModel.findOne({ email }).exec()
+  }
+
   async create(payload: CreateUserDTO): Promise<User> {
     const hashedPassword = await bcrypt.hash(payload.password, 10)
 

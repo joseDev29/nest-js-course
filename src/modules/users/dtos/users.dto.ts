@@ -16,4 +16,5 @@ export class CreateUserDTO {
   readonly role: string
 }
 
+//PartyalType tambien puede venir de @nestjs/mapped-types
 export class UpdateUserDTO extends PartialType(CreateUserDTO) {}

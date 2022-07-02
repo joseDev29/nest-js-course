@@ -9,7 +9,7 @@ import { UsersModule } from './modules/users/users.module'
 import { DatabaseModule } from './modules/database/database.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { AuthModule } from './modules/auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module'
 
 @Module({
   imports: [
@@ -19,6 +19,8 @@ import { AuthModule } from './modules/auth/auth.module';
       load: [config],
       validationSchema: Joi.object({
         API_KEY: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRATION_TIME: Joi.string().required(),
         MONGO_CONNECTION: Joi.string().required(),
         MONGO_USER: Joi.string().required(),
         MONGO_PASSWORD: Joi.string().required(),

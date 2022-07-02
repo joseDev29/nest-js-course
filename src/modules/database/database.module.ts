@@ -32,6 +32,7 @@ import config from 'src/config/config'
       inject: [config.KEY],
     }),
   ],
+  //Segunda forma
   providers: [
     {
       provide: 'MongoDBService',

@@ -10,10 +10,13 @@ import {
   HttpStatus,
   NotFoundException,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ObjectId } from 'mongodb'
 import { MongoIdPipe } from 'src/pipes/mongo-id.pipe'
+import { Request } from 'express'
 
 import {
   CreateProductDTO,
@@ -21,14 +24,23 @@ import {
   UpdateProductDTO,
 } from '../dtos/products.dto'
 import { ProductsService } from '../services/products.service'
+import { JWTAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard'
+import { Public } from 'src/modules/auth/decorators/public.decorator'
+import { Roles } from 'src/modules/auth/decorators/roles.decorator'
+import { Role } from 'src/modules/auth/models/roles.model'
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard'
 
+@UseGuards(JWTAuthGuard, RolesGuard)
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  async getAll(@Query() params: FilterProductsDTO) {
+  @Public()
+  async getAll(@Req() req: Request, @Query() params: FilterProductsDTO) {
+    console.log('JWT USER: ', req.user)
+
     return {
       ok: true,
       data: await this.productsService.findAll(params),
@@ -50,6 +62,7 @@ export class ProductsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Roles(Role.ADMIN)
   async create(@Body() payload: CreateProductDTO) {
     const product = await this.productsService.create(payload)
 
